@@ -111,7 +111,7 @@
 
 <svelte:head>
   <title>{play.title}</title>
-  <meta name="description" content="A todo list app" />
+  <meta name="description" content={play.description} />
 </svelte:head>
 
 <header>
