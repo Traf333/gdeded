@@ -44,6 +44,9 @@
     width: 24px;
     cursor: pointer;
   }
+  .icon.m {
+    width: 30px;
+  }
   img {
     width: 100%;
   }

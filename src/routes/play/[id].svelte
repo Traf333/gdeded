@@ -174,8 +174,8 @@
         <div class="d-flex align-items-center justify-content-between p-3">
           <div class="d-flex align-items-center">
             {#if foundItems.length > 0}
-              <Icon name="prev" onClick={onClickPrev} title="Предыдущая запись" />
-              <Icon name="next" onClick={onClickNext} title="Следующая запись" />
+              <Icon name="prev" className="m mr-3" onClick={onClickPrev} title="Предыдущая запись" />
+              <Icon name="next" className="m" onClick={onClickNext} title="Следующая запись" />
             {/if}
             {#if searchTerm}
               {searchIndex + 1} / {foundItems.length}
