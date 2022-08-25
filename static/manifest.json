@@ -1,7 +1,13 @@
 {
-  "name": "Где Дед",
-  "short_name": "Где Дед",
-  "icons": [],
+  "name": "gdeded",
+  "short_name": "gdeded",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
   "start_url": "/",
   "background-color": "#cccccc",
   "scope": "/",
