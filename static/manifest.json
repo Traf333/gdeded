@@ -11,12 +11,17 @@
       "src": "/icon-big.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/icon-big.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "start_url": "/",
   "background-color": "#cccccc",
-  "scope": "/",
   "display": "standalone",
-  "theme_color": "#DDDDDD",
+  "theme_color": "#1e88e5",
   "description": "Приложение для заучивания текстов"
 }
