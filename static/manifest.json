@@ -1,0 +1,11 @@
+{
+  "name": "Где Дед",
+  "short_name": "Где Дед",
+  "icons": [],
+  "start_url": "/",
+  "background-color": "#cccccc",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#DDDDDD",
+  "description": "Приложение для заучивания текстов"
+}
