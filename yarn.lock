@@ -136,6 +136,11 @@
     set-cookie-parser "^2.4.8"
     tiny-glob "^0.2.9"
 
+"@sveltejs/adapter-static@^1.0.0-next.39":
+  version "1.0.0-next.39"
+  resolved "https://registry.yarnpkg.com/@sveltejs/adapter-static/-/adapter-static-1.0.0-next.39.tgz#ae79b95accd3af6ecfa92e9596c4d41b49cf6fea"
+  integrity sha512-EeD39H6iEe0UEKnKxLFTZFZpi/FcX5xfbAvsMQ+B09aDZccpQmkJBSIo+4kq1JsQGSjwi/+J3aE9bR67R6CIyQ==
+
 "@sveltejs/adapter-vercel@1.0.0-next.65":
   version "1.0.0-next.65"
   resolved "https://registry.yarnpkg.com/@sveltejs/adapter-vercel/-/adapter-vercel-1.0.0-next.65.tgz#17cd1a46168e014bb93ca0b35ee5e76e935e4c69"
