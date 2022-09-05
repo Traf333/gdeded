@@ -19,14 +19,22 @@
   let selectedRole: string;
   let showRoleSelect = false;
   let showSearch = false;
+  let showBookmarks = false;
   let searchTerm = '';
   let value = '';
   let searchIndex = 0;
+  let bookmarks = [];
 
-  const key = `speeches-for-${play.id}`;
   onMount(() => {
+    const key = `speeches-for-${play.id}`;
+    const b_key = `bookmarks-for-${play.id}`;
+
     const rawData = localStorage.getItem(key);
     speeches = rawData ? JSON.parse(rawData) : [];
+
+    const bb = localStorage.getItem(b_key);
+    bookmarks = bb ? JSON.parse(bb) : [];
+
     http.get(`/speeches.json?play_id=${play.id}`).then(({ data }) => {
       speeches = data;
       localStorage.setItem(key, JSON.stringify(data));
@@ -62,6 +70,15 @@
   };
   const handleClick = (item) => {
     selectedItem = selectedItem === item ? null : item;
+  };
+
+  const handleBookmarkChange = () => {
+    bookmarks = bookmarks.includes(editedItem.id)
+      ? bookmarks.filter((b) => editedItem.id !== b)
+      : [...bookmarks, editedItem.id].sort();
+
+    const b_key = `bookmarks-for-${play.id}`;
+    localStorage.setItem(b_key, JSON.stringify(bookmarks));
   };
   const toggleRole = (role) => {
     if (selectedRole === role) {
@@ -107,6 +124,7 @@
   $: prevSpeechItem = speeches.slice(0, currentIndex - 1).reverse().find((s) => s.audio_url);
   $: nextSpeechItem = speeches.slice(currentIndex + 1).find((s) => s.audio_url);
   $: foundItems = searchTerm ? speeches.filter((s) => s.text.includes(searchTerm)) : speeches;
+  $: bookmarkItems = speeches.filter((s) => bookmarks.includes(s.id));
 </script>
 
 <svelte:head>
@@ -121,13 +139,15 @@
     <div class="d-flex">
       <Icon name="search" className="mr-3" onClick={handleSearchClick} />
       <Icon name="users" onClick={() => showRoleSelect = !showRoleSelect} />
-      <!--      <div class="burger">-->
-      <!--        <svg viewBox="0 0 100 60" width="24" height="24">-->
-      <!--          <rect width="100" height="6"></rect>-->
-      <!--          <rect y="30" width="100" height="6"></rect>-->
-      <!--          <rect y="60" width="100" height="6"></rect>-->
-      <!--        </svg>-->
-      <!--      </div>-->
+      {#if bookmarks.length > 0}
+        <div class="burger ml-3" on:click={() => showBookmarks = true}>
+          <svg viewBox="0 0 100 60" width="24" height="24">
+            <rect width="100" height="6"></rect>
+            <rect y="30" width="100" height="6"></rect>
+            <rect y="60" width="100" height="6"></rect>
+          </svg>
+        </div>
+      {/if}
     </div>
   </div>
   {#if showRoleSelect}
@@ -212,6 +232,10 @@
     <span slot="header">Редактирование текста</span>
     <p contenteditable="true" bind:innerHTML={editedItem.text}>
     </p>
+    <label>
+      <input type="checkbox" on:change={handleBookmarkChange} checked={bookmarks.includes(editedItem.id)}>
+      <span class="ml-3 mb-3">В закладки</span>
+    </label>
     <div class="d-flex justify-content-between" slot="footer">
       <div>
         <button class="btn-secondary" on:click={close}>
@@ -228,6 +252,13 @@
     </div>
   </Modal>
 {/if}
+{#if showBookmarks}
+  <div class="bookmarks p-3">
+    {#each bookmarkItems as item, i (item)}
+      <div class="mb-3">{item.text}</div>
+    {/each}
+  </div>
+{/if}
 
 <style>
   .play {
@@ -238,6 +269,16 @@
     left: 0;
     width: 100%;
     overflow: auto;
+  }
+
+  .bookmarks {
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
   }
 
   section {
