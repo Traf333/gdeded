@@ -253,9 +253,18 @@
   </Modal>
 {/if}
 {#if showBookmarks}
-  <div class="bookmarks p-3">
+  <div class="bookmarks">
+    <div class="d-flex justify-content-between p-3">
+      <h3>Закладки</h3>
+      <Icon onClick={() => showBookmarks =false} name="cross" />
+    </div>
     {#each bookmarkItems as item, i (item)}
-      <div class="mb-3">{item.text}</div>
+      <div class="p-3 bookmark" class:active={item === selectedItem} on:click={() => {
+        showBookmarks = false
+        goto(item)
+      }}>
+        {item.text.substring(0, 25)}
+      </div>
     {/each}
   </div>
 {/if}
@@ -272,13 +281,18 @@
   }
 
   .bookmarks {
-    position: absolute;
+    box-sizing: border-box;
+    position: fixed;
     z-index: 20;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: white;
+  }
+
+  .bookmark.active {
+    background-color: #eeeeee;
   }
 
   section {
