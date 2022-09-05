@@ -232,10 +232,12 @@
     <span slot="header">Редактирование текста</span>
     <p contenteditable="true" bind:innerHTML={editedItem.text}>
     </p>
-    <label>
-      <input type="checkbox" on:change={handleBookmarkChange} checked={bookmarks.includes(editedItem.id)}>
-      <span class="ml-3 mb-3">В закладки</span>
-    </label>
+    <div class="mb-3">
+      <label>
+        <input type="checkbox" on:change={handleBookmarkChange} checked={bookmarks.includes(editedItem.id)}>
+        <span class="ml-3">В закладки</span>
+      </label>
+    </div>
     <div class="d-flex justify-content-between" slot="footer">
       <div>
         <button class="btn-secondary" on:click={close}>

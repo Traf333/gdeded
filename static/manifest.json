@@ -4,8 +4,9 @@
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
-  "name": "gdeded",
-  "short_name": "gdeded",
+  "name": "gde-ded",
+  "short_name": "gd",
+  "version": "1.1",
   "description": "help me learn texts",
   "icons": [
     {

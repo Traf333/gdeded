@@ -5,7 +5,7 @@ import { build, files, version } from '$service-worker';
 
 // Initializations:
 const worker = (self as unknown) as ServiceWorkerGlobalScope;
-const FILES = `cache${version}`;
+const FILES = `cache-${version}`;
 const to_cache = build.concat(files);
 const staticAssets = new Set(to_cache);
 
@@ -26,7 +26,7 @@ worker.addEventListener('activate', (event) => {
 
 // Fetch & Cache Event:
 async function fetchAndCache(request: Request) {
-  const cache = await caches.open(`offline${version}`);
+  const cache = await caches.open(`offline-${version}`);
   try {
     const response = await fetch(request);
     cache.put(request, response.clone());
