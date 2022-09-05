@@ -7,6 +7,7 @@
   import { longpress } from '$lib/longpress.js';
   import { onMount } from 'svelte';
   import http from '$lib/http';
+  import { truncate } from '$lib/text';
   import MediaControl from '$lib/MediaControl.svelte';
   import Loader from '../../lib/Loader.svelte';
   import Modal from '../../lib/Modal.svelte';
@@ -264,9 +265,7 @@
       <div class="p-3 bookmark" class:active={item === selectedItem} on:click={() => {
         showBookmarks = false
         goto(item)
-      }}>
-        {item.text.substring(0, 25)}
-      </div>
+      }}>{truncate(item.text)}</div>
     {/each}
   </div>
 {/if}
