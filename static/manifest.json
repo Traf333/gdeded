@@ -4,9 +4,9 @@
   "display": "standalone",
   "scope": "https://xn--c1acaadb.xn--p1ai/",
   "start_url": "https://xn--c1acaadb.xn--p1ai/",
-  "name": "gde-ded",
-  "short_name": "gd",
-  "version": "1.1",
+  "name": "Где дед",
+  "short_name": "Где дед",
+  "version": "1.2",
   "description": "help me learn texts",
   "icons": [
     {
