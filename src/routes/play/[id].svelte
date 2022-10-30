@@ -8,10 +8,10 @@
   import { onMount } from 'svelte';
   import http from '$lib/http';
   import { truncate } from '$lib/text';
-  import MediaControl from '$lib/MediaControl.svelte';
-  import Loader from '../../lib/Loader.svelte';
-  import Modal from '../../lib/Modal.svelte';
-  import Icon from '../../lib/icon/Icon.svelte';
+  import MediaControl from '../../components/MediaControl.svelte';
+  import Loader from '../../components/Loader.svelte';
+  import Modal from '../../components/Modal.svelte';
+  import Icon from '../../components/icon/Icon.svelte';
 
   export let play: IPlay;
   export let speeches: ISpeech[] = [];

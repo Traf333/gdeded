@@ -3,12 +3,11 @@
 </script>
 
 <script lang="ts">
-  import ded from '$lib/icon/ded.svg';
-  import { fetchScenarios } from '../api/scenario';
+  import { fetchScenarios, createScenario } from '../api/scenario';
   import type { IScenario } from '$lib/types';
-  import Modal from '$lib/Modal.svelte';
   import ScenarioForm from '../components/ScenarioForm.svelte';
-  import Loader from '$lib/Loader.svelte';
+  import Loader from '../components/Loader.svelte';
+  import { Card, ToolbarButton, Dropdown, DropdownItem, Button, Modal } from 'flowbite-svelte';
 
   let selectedItem: IScenario | object | null;
   const query = fetchScenarios();
@@ -22,7 +21,7 @@
 <section>
   <h1>А Где Дед?</h1>
 
-  <h2 class="mb-5 p-3 text-center">Помощник в заучивании сценариев для спектаклей</h2>
+  <h2 class="mb-5 p-3 text-center font-bold">Помощник в заучивании сценариев для спектаклей</h2>
   {#if $query.fetching}
     <Loader />
   {:else if $query.error}
@@ -30,29 +29,45 @@
   {:else if !$query.data}
     No data
   {:else}
-    <ul>
+    <div class="flex flex-col mb-3 xl:w-1/3 md:mx-auto md:w-2/3 xs:w-full p-3">
       {#each $query.data.allScenarios.data as play (play)}
-        <li>
-          <a href="/play/{play.id}">
-            <h3>{play.title}</h3>
-            <div><em>{play.description ?? ''}</em></div>
-            <small>{play.roles.length} человек</small>
-          </a>
-        </li>
+        <Card class="mb-3 min-w-full">
+          <div class="flex justify-between">
+            <a href="/play/{play.id}" class="mb-2 text-l font-semibold tracking-tight text-gray-900 dark:text-white">
+              {play.title}
+            </a>
+            <ToolbarButton class="dots-menu text-gray-900 bg-white dark:text-white dark:bg-gray-800">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                   stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+              </svg>
+            </ToolbarButton>
+            <Dropdown class="w-36" triggeredBy=".dots-menu">
+              <DropdownItem on:click={() => selectedItem = play}>Редактировать</DropdownItem>
+              <!--              <DropdownItem>Export data</DropdownItem>-->
+              <!--              <DropdownItem on:click={handleDestroy}>Удалить</DropdownItem>-->
+            </Dropdown>
+          </div>
+          <p class="font-normal text-gray-700 dark:text-gray-400 leading-tight">
+            {play.description ?? ''}
+          </p>
+        </Card>
       {/each}
-      <li class="dashed" on:click={() => selectedItem  = {}}>
+    </div>
+    <div class="text-center">
+      <Button outline gradient color="purpleToBlue" on:click={() => selectedItem = {}}>
         Добавить новый спектакль
-      </li>
-    </ul>
+      </Button>
+    </div>
   {/if}
   <br><br>
 </section>
 
-{#if selectedItem}
-  <Modal>
-    <ScenarioForm scenario={selectedItem} />
-  </Modal>
-{/if}
+<Modal bind:open={selectedItem} title={selectedItem?._id ? 'Редактировать спектакль' : 'Создать спектакль'}>
+  <ScenarioForm scenario={selectedItem} onSubmit={(scenario) => createScenario(scenario)}
+                onCancel={() => selectedItem = null} />
+</Modal>
 
 <style>
   section {
@@ -63,32 +78,5 @@
   h1 {
     width: 100%;
     text-align: center;
-  }
-
-  ul {
-    list-style: none;
-    margin: auto;
-    padding: 1rem;
-    max-width: 600px;
-  }
-
-  li {
-    margin-bottom: 1rem;
-    padding: 1rem;
-    box-shadow: 0 0 3px var(--primary-color);
-    border-radius: 1rem;
-    width: 100%;
-    max-width: 600px;
-    box-sizing: border-box;
-    cursor: pointer;
-  }
-
-  li.dashed {
-    border-style: dashed;
-  }
-
-  h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
   }
 </style>
