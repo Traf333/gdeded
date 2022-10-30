@@ -1,4 +1,4 @@
-export interface IPlay {
+export interface IScenario {
   id: string;
   title: string;
   description: string;

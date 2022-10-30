@@ -3,10 +3,15 @@
 </script>
 
 <script lang="ts">
-  import type { IPlay } from '$lib/types';
   import ded from '$lib/icon/ded.svg';
+  import { fetchScenarios } from '../api/scenario';
+  import type { IScenario } from '$lib/types';
+  import Modal from '$lib/Modal.svelte';
+  import ScenarioForm from '../components/ScenarioForm.svelte';
+  import Loader from '$lib/Loader.svelte';
 
-  export let plays: IPlay[];
+  let selectedItem: IScenario | object | null;
+  const query = fetchScenarios();
 </script>
 
 <svelte:head>
@@ -16,24 +21,38 @@
 
 <section>
   <h1>А Где Дед?</h1>
-  <div class="text-center"><img src={ded} width="100px" alt="Где был дед"></div>
-
 
   <h2 class="mb-5 p-3 text-center">Помощник в заучивании сценариев для спектаклей</h2>
-
-  <ul>
-    {#each plays as play (play)}
-      <li>
-        <a href="/play/{play.id}" sveltekit:prefetch>
-          <h3>{play.title}</h3>
-          <div><em>{play.description}</em></div>
-          <small>{play.roles.length} человек</small>
-        </a>
+  {#if $query.fetching}
+    <Loader />
+  {:else if $query.error}
+    Oh no! {$query.error.message}
+  {:else if !$query.data}
+    No data
+  {:else}
+    <ul>
+      {#each $query.data.allScenarios.data as play (play)}
+        <li>
+          <a href="/play/{play.id}">
+            <h3>{play.title}</h3>
+            <div><em>{play.description ?? ''}</em></div>
+            <small>{play.roles.length} человек</small>
+          </a>
+        </li>
+      {/each}
+      <li class="dashed" on:click={() => selectedItem  = {}}>
+        Добавить новый спектакль
       </li>
-    {/each}
-  </ul>
+    </ul>
+  {/if}
   <br><br>
 </section>
+
+{#if selectedItem}
+  <Modal>
+    <ScenarioForm scenario={selectedItem} />
+  </Modal>
+{/if}
 
 <style>
   section {
@@ -61,6 +80,11 @@
     width: 100%;
     max-width: 600px;
     box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  li.dashed {
+    border-style: dashed;
   }
 
   h3 {
