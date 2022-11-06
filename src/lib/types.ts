@@ -1,5 +1,5 @@
 export interface IScenario {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   roles: string[];
@@ -7,7 +7,7 @@ export interface IScenario {
 }
 
 export interface ISpeech {
-  id: string;
+  _id: string;
   text: string;
   audio_url: string;
 }

@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-  import { fetchScenarios, createScenario } from '../api/scenario';
+  import { fetchScenarios, createScenario, updateScenario, destroyScenario } from '../api/scenario';
   import type { IScenario } from '$lib/types';
   import ScenarioForm from '../components/ScenarioForm.svelte';
   import Loader from '../components/Loader.svelte';
@@ -33,20 +33,20 @@
       {#each $query.data.allScenarios.data as play (play)}
         <Card class="mb-3 min-w-full">
           <div class="flex justify-between">
-            <a href="/play/{play.id}" class="mb-2 text-l font-semibold tracking-tight text-gray-900 dark:text-white">
+            <a href="/play/{play._id}" class="mb-2 text-l font-semibold tracking-tight text-gray-900 dark:text-white">
               {play.title}
             </a>
-            <ToolbarButton class="dots-menu text-gray-900 bg-white dark:text-white dark:bg-gray-800">
+            <ToolbarButton class="dots-menu{play._id} text-gray-900 bg-white dark:text-white dark:bg-gray-800">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                    stroke="currentColor" class="w-5 h-5">
                 <path stroke-linecap="round" stroke-linejoin="round"
                       d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
               </svg>
             </ToolbarButton>
-            <Dropdown class="w-36" triggeredBy=".dots-menu">
+            <Dropdown class="w-36" triggeredBy=".dots-menu{play._id}">
               <DropdownItem on:click={() => selectedItem = play}>Редактировать</DropdownItem>
               <!--              <DropdownItem>Export data</DropdownItem>-->
-              <!--              <DropdownItem on:click={handleDestroy}>Удалить</DropdownItem>-->
+                            <DropdownItem on:click={() => destroyScenario(play._id)}>Удалить</DropdownItem>
             </Dropdown>
           </div>
           <p class="font-normal text-gray-700 dark:text-gray-400 leading-tight">
@@ -65,8 +65,11 @@
 </section>
 
 <Modal bind:open={selectedItem} title={selectedItem?._id ? 'Редактировать спектакль' : 'Создать спектакль'}>
-  <ScenarioForm scenario={selectedItem} onSubmit={(scenario) => createScenario(scenario)}
-                onCancel={() => selectedItem = null} />
+  {#key selectedItem._id}
+    <ScenarioForm scenario={selectedItem}
+                  onSubmit={(scenario) => selectedItem?._id ?  updateScenario(selectedItem._id, scenario) : createScenario(scenario) }
+                  onCancel={() => selectedItem = null} />
+  {/key}
 </Modal>
 
 <style>

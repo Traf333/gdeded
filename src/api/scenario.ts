@@ -13,10 +13,38 @@ export const fetchScenarios = () => (
                     _id
                     roles
                     description
+                    active
+                    speeches {
+                        data {
+                            text
+                        }
+                    }
                 }
             }
         }
     `,
+  })
+);
+export const fetchScenario = (id: string) => (
+  queryStore({
+    client: client,
+    query: gql`
+        query findScenarioByID($id: ID!) {
+            findScenarioByID(id: $id) {
+                title
+                _id
+                roles
+                description
+                active
+                speeches {
+                    data {
+                        text
+                    }
+                }
+            }
+        }
+    `,
+    variables: { id }
   })
 );
 
@@ -34,5 +62,39 @@ export const createScenario = (data: IScenario) => (
         }
     `,
     variables: { data }
+  })
+);
+
+export const updateScenario = (id: string, data: IScenario) => (
+  mutationStore({
+    client: client,
+    query: gql`
+        mutation updateScenario($id: ID!, $data: ScenarioInput!){
+            updateScenario(id: $id, data: $data) {
+                title
+                _id
+                roles
+                description
+            }
+        }
+    `,
+    variables: { id, data }
+  })
+);
+
+export const destroyScenario = (id: IScenario) => (
+  mutationStore({
+    client: client,
+    query: gql`
+        mutation deleteScenario($id: ID!){
+            deleteScenario(id: $id) {
+                title
+                _id
+                roles
+                description
+            }
+        }
+    `,
+    variables: { id }
   })
 );
