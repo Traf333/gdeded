@@ -25,11 +25,10 @@
   let value = '';
   let searchIndex = 0;
   let bookmarks = [];
-  let scenarioId = $page.params.id;
-
-  const p_key = `play-${scenarioId}`;
-  const s_key = `speeches-for-${scenarioId}`;
-  const b_key = `bookmarks-for-${scenarioId}`;
+  let scenarioId;
+  let p_key;
+  let s_key;
+  let b_key;
 
   const assign = (key) => {
     const rawData = localStorage.getItem(key);
@@ -38,6 +37,11 @@
 
 
   onMount(() => {
+    scenarioId = $page.params.id;
+
+    p_key = `play-${scenarioId}`;
+    s_key = `speeches-for-${scenarioId}`;
+    b_key = `bookmarks-for-${scenarioId}`;
 
     play = assign(p_key) || {};
     speeches = assign(s_key) || [];
