@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { IScenario, ISpeech } from '$lib/types';
-  import { page } from '$app/stores';
   import { longpress } from '$lib/longpress.js';
   import { onMount } from 'svelte';
   import { client } from '../../lib/faunadb.js';
@@ -37,7 +36,7 @@
 
 
   onMount(() => {
-    scenarioId = $page.params.id;
+    scenarioId = window.location.pathname.split('/').at(-1);
 
     p_key = `play-${scenarioId}`;
     s_key = `speeches-for-${scenarioId}`;
