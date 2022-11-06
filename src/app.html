@@ -2,16 +2,11 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="shortcut icon" href="%sveltekit.assets%/favicon.svg" />
-		<link rel="manifest" href="/manifest.json">
-		<meta http-equiv="x-ua-compatible" content="ie=edge">
-		<meta name="mobile-wep-app-capable" content="yes">
-		<meta name="apple-mobile-wep-app-capable" content="yes">
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-
+		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<meta name="viewport" content="width=device-width" />
 		%sveltekit.head%
 	</head>
-	<body>
-		<div id="app">%sveltekit.body%</div>
+	<body data-sveltekit-prefetch>
+		<div>%sveltekit.body%</div>
 	</body>
 </html>

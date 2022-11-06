@@ -2,27 +2,28 @@ import { gql, mutationStore, queryStore } from '@urql/svelte';
 import faunadb from '../lib/faunadb.js';
 import type { IScenario } from '../lib/types';
 
-export const fetchScenarios = () => (
-  queryStore({
-    client: faunadb,
-    query: gql`
-        query {
-            allScenarios {
-                data {
-                    title
-                    _id
-                    roles
-                    description
-                    active
-                    speeches {
-                        data {
-                            text
-                        }
+export const scenariosQuery = gql`
+    query {
+        allScenarios {
+            data {
+                title
+                _id
+                roles
+                description
+                active
+                speeches {
+                    data {
+                        text
                     }
                 }
             }
         }
-    `,
+    }
+`;
+export const fetchScenarios = () => (
+  queryStore({
+    client: faunadb,
+    query: scenariosQuery,
   })
 );
 
