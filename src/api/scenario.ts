@@ -1,5 +1,5 @@
 import { gql, mutationStore, queryStore } from '@urql/svelte';
-import faunadb from '../lib/faunadb.js';
+import faunadb, { client } from '../lib/faunadb.js';
 import type { IScenario } from '../lib/types';
 
 export const scenariosQuery = gql`
@@ -20,12 +20,6 @@ export const scenariosQuery = gql`
         }
     }
 `;
-export const fetchScenarios = () => (
-  queryStore({
-    client: faunadb,
-    query: scenariosQuery,
-  })
-);
 
 export const scenarioShowQuery = gql`
     query findScenarioByID($id: ID!) {
@@ -45,6 +39,56 @@ export const scenarioShowQuery = gql`
         }
     }
 `;
+
+export const createScenarioMutation = gql`
+    mutation createScenario($data: ScenarioInput!){
+        createScenario(data: $data) {
+            title
+            _id
+            roles
+            description
+        }
+    }
+`;
+
+export const updateScenarioMutation = gql`
+    mutation updateScenario($id: ID!, $data: ScenarioInput!){
+        updateScenario(id: $id, data: $data) {
+            title
+            _id
+            roles
+            description
+        }
+    }
+`;
+
+export const destroyScenarioMutation = gql`
+    mutation deleteScenario($id: ID!){
+        deleteScenario(id: $id) {
+            title
+            _id
+            roles
+            description
+        }
+    }
+`;
+
+export const allScenarios = (params: object) => client.query(scenariosQuery, params).toPromise();
+export const scenarioById = (id: number) => client.query(scenarioShowQuery, { id }).toPromise();
+export const create = (data: IScenario) => client.mutation(createScenarioMutation, { data }).toPromise();
+export const update = (id: string, data: IScenario) => (
+  client.mutation(updateScenarioMutation, { id, data }).toPromise()
+);
+export const destroy = (id: string) => client.mutation(destroyScenarioMutation, { id }).toPromise();
+
+export const fetchScenarios = () => (
+  queryStore({
+    client: faunadb,
+    query: scenariosQuery,
+  })
+);
+
+
 export const fetchScenario = (id: string) => (
   queryStore({
     client: faunadb,
@@ -56,16 +100,7 @@ export const fetchScenario = (id: string) => (
 export const createScenario = (data: IScenario) => (
   mutationStore({
     client: faunadb,
-    query: gql`
-        mutation createScenario($data: ScenarioInput!){
-            createScenario(data: $data) {
-                title
-                _id
-                roles
-                description
-            }
-        }
-    `,
+    query: createScenarioMutation,
     variables: { data }
   })
 );
@@ -73,16 +108,7 @@ export const createScenario = (data: IScenario) => (
 export const updateScenario = (id: string, data: IScenario) => (
   mutationStore({
     client: faunadb,
-    query: gql`
-        mutation updateScenario($id: ID!, $data: ScenarioInput!){
-            updateScenario(id: $id, data: $data) {
-                title
-                _id
-                roles
-                description
-            }
-        }
-    `,
+    query: updateScenarioMutation,
     variables: { id, data }
   })
 );
@@ -90,16 +116,7 @@ export const updateScenario = (id: string, data: IScenario) => (
 export const destroyScenario = (id: IScenario) => (
   mutationStore({
     client: faunadb,
-    query: gql`
-        mutation deleteScenario($id: ID!){
-            deleteScenario(id: $id) {
-                title
-                _id
-                roles
-                description
-            }
-        }
-    `,
+    query: destroyScenarioMutation,
     variables: { id }
   })
 );

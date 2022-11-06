@@ -1,12 +1,23 @@
 <script lang="ts">
-  import { createScenario, updateScenario, destroyScenario } from '../api/scenario';
+  import { create, update, destroy } from '../api/scenario';
   import type { IScenario } from '$lib/types';
   import ScenarioForm from '../components/ScenarioForm.svelte';
   import { Card, ToolbarButton, Dropdown, DropdownItem, Button, Modal } from 'flowbite-svelte';
+
   export let data;
 
   let selectedItem: IScenario | object | null;
-  let scenarios = data.scenarios
+  let scenarios = data.scenarios;
+
+  const handleSubmit = async (scenario) => {
+    if (selectedItem?._id) {
+      await update(selectedItem._id, scenario);
+      scenarios = scenarios.map((s) => s._id === selectedItem._id ? scenario : s);
+    } else {
+      const rest = await create(scenario);
+      scenarios = [...scenarios, rest.data.createScenario];
+    }
+  };
 </script>
 
 <svelte:head>
@@ -34,7 +45,12 @@
           <Dropdown class="w-36" triggeredBy=".dots-menu{play._id}">
             <DropdownItem on:click={() => selectedItem = play}>Редактировать</DropdownItem>
             <!--              <DropdownItem>Export data</DropdownItem>-->
-            <DropdownItem on:click={() => destroyScenario(play._id)}>Удалить</DropdownItem>
+            <DropdownItem on:click={async () => {
+              await destroy(play._id)
+              scenarios = scenarios.filter((s) => s._id !== play._id)
+            }}>
+              Удалить
+            </DropdownItem>
           </Dropdown>
         </div>
         <p class="font-normal text-gray-700 dark:text-gray-400 leading-tight">
@@ -53,7 +69,7 @@
 
 <Modal bind:open={selectedItem} title={selectedItem?._id ? 'Редактировать спектакль' : 'Создать спектакль'}>
   <ScenarioForm scenario={selectedItem}
-                onSubmit={(scenario) => selectedItem?._id ?  updateScenario(selectedItem._id, scenario) : createScenario(scenario) }
+                onSubmit={handleSubmit}
                 onCancel={() => selectedItem = null} />
 </Modal>
 

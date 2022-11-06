@@ -12,11 +12,12 @@
 
   function extractSpeeches(e) {
     loading = true;
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.readAsText(e.target.files[0], 'UTF-8');
     reader.onload = function (evt) {
+      const lineSeparator = evt.target.result.includes('\r') ? '\r' : '\n'
       speeches = evt.target.result
-        .split('\n')
+        .split(lineSeparator)
         .filter((line) => line.trim())
         .map((line) => ({ text: line.trim() }));
       loading = false;
@@ -56,8 +57,8 @@
     <Input class="form-input" id="description" type="text" bind:value={scenario.description} />
   </div>
   <div class="mb-6">
-    <Label class="" for="description">Roles</Label>
-    <Input class="form-input" id="description" type="text" bind:value={roles} />
+    <Label class="" for="roles">Роли <small>(через запятую)</small></Label>
+    <Input class="form-input" id="roles" type="text" bind:value={roles} />
   </div>
   <div class="mb-6">
     <Label class="pb-2">Загрузить спектакль <small>(форматы TXT, DOCX, DOC)</small></Label>
