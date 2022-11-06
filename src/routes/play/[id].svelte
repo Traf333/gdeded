@@ -144,7 +144,7 @@
   <Loader />
 {:else }
   <header>
-    <div class="container d-flex align-items-center justify-content-between">
+    <div class="container p-3 d-flex align-items-center justify-content-between">
       <a href="/">← Назад</a>
       <h2 class="cursor-pointer" on:click={() => scrollToIndex('roles')}>{play.title}</h2>
       <div class="d-flex">
@@ -170,7 +170,7 @@
     {/if}
   </header>
 
-  <div class="play">
+  <div class="play mt-14">
     <section class="container" class:filtered={selectedRole}>
       {#if speeches.length > 0}
         {#each speeches as item, i (item)}
