@@ -25,25 +25,29 @@ export const fetchScenarios = () => (
     `,
   })
 );
-export const fetchScenario = (id: string) => (
-  queryStore({
-    client: client,
-    query: gql`
-        query findScenarioByID($id: ID!) {
-            findScenarioByID(id: $id) {
-                title
-                _id
-                roles
-                description
-                active
-                speeches {
-                    data {
-                        text
-                    }
+
+export const scenarioShowQuery = gql`
+    query findScenarioByID($id: ID!) {
+        findScenarioByID(id: $id) {
+            title
+            _id
+            roles
+            description
+            active
+            speeches(_size: 10000) {
+                data {
+                    _id
+                    text
+                    audios
                 }
             }
         }
-    `,
+    }
+`;
+export const fetchScenario = (id: string) => (
+  queryStore({
+    client: client,
+    query: scenarioShowQuery,
     variables: { id }
   })
 );

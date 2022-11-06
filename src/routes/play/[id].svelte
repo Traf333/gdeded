@@ -4,17 +4,19 @@
 
 <script lang="ts">
   import type { IScenario, ISpeech } from '$lib/types';
+  import { page } from '$app/stores';
   import { longpress } from '$lib/longpress.js';
   import { onMount } from 'svelte';
+  import { client } from '$lib/database/client.js';
   import http from '$lib/http';
   import { truncate } from '$lib/text';
   import MediaControl from '../../components/MediaControl.svelte';
   import Loader from '../../components/Loader.svelte';
   import Modal from '../../components/Modal.svelte';
   import Icon from '../../components/icon/Icon.svelte';
-  import { fetchScenario } from '../../api/scenario';
+  import { scenarioShowQuery } from '../../api/scenario';
 
-  export let play: IScenario;
+  export let play: IScenario | object = {};
   export let speeches: ISpeech[] = [];
   let selectedItem: ISpeech;
   let editedItem: ISpeech;
@@ -26,265 +28,253 @@
   let value = '';
   let searchIndex = 0;
   let bookmarks = [];
-  //
-  // onMount(() => {
-  //   const key = `speeches-for-${play._id}`;
-  //   const b_key = `bookmarks-for-${play._id}`;
-  //
-  //   const rawData = localStorage.getItem(key);
-  //   speeches = rawData ? JSON.parse(rawData) : [];
-  //
-  //   const bb = localStorage.getItem(b_key);
-  //   bookmarks = bb ? JSON.parse(bb) : [];
-  //
-  //   http.get(`/speeches.json?play_id=${play._id}`).then(({ data }) => {
-  //     speeches = data;
-  //     localStorage.setItem(key, JSON.stringify(data));
-  //   });
-  // });
+  let scenarioId = $page.params.id;
 
-  // const handleSearchClick = () => {
-  //   if (showSearch) {
-  //     searchTerm = '';
-  //     showSearch = false;
-  //     searchIndex = 0;
-  //   } else {
-  //     showSearch = true;
-  //   }
-  // };
-  // const handleUpdate = (data) => {
-  //   if (data.audio) {
-  //     let formData = new FormData();
-  //     formData.append('speech[audio]', data.audio);
-  //     http.put(`/speeches/${data._id}.json`, formData, {
-  //       headers: { 'Content-Type': 'multipart/form-data', }
-  //     }).then(({ data }) => {
-  //       speeches = speeches.map((s) => s._id === data._id ? data : s);
-  //       selectedItem = data;
-  //     });
-  //   } else {
-  //     http.put(`/speeches/${data._id}.json`, data)
-  //       .then(({ data }) => {
-  //         speeches = speeches.map((s) => s._id === data._id ? data : s);
-  //         selectedItem = data;
-  //       });
-  //   }
-  // };
-  // const handleClick = (item) => {
-  //   selectedItem = selectedItem === item ? null : item;
-  // };
-  //
-  // const handleBookmarkChange = () => {
-  //   bookmarks = bookmarks.includes(editedItem._id)
-  //     ? bookmarks.filter((b) => editedItem._id !== b)
-  //     : [...bookmarks, editedItem._id].sort();
-  //
-  //   const b_key = `bookmarks-for-${play._id}`;
-  //   localStorage.setItem(b_key, JSON.stringify(bookmarks));
-  // };
-  // const toggleRole = (role) => {
-  //   if (selectedRole === role) {
-  //     selectedRole = null;
-  //   } else {
-  //     selectedRole = role;
-  //     const item = speeches.find((r) => r.text.startsWith(role));
-  //     scrollToIndex(item._id);
-  //   }
-  // };
-  // const scrollToIndex = (id) => {
-  //   const getMeTo = document.getElementById(id);
-  //   getMeTo.scrollIntoView({ behavior: 'smooth' });
-  // };
-  // const goto = (item) => {
-  //   scrollToIndex(item._id);
-  //   selectedItem = item;
-  // };
-  // const close = () => editedItem = null;
-  // const save = () => {
-  //   handleUpdate({ id: editedItem._id, text: editedItem.text });
-  //   editedItem = null;
-  // };
-  //
-  // const handleDelete = (item) => {
-  //   http.delete(`/speeches/${item._id}.json`)
-  //     .then(() => {
-  //       speeches = speeches.filter((i) => i._id !== item._id);
-  //       editedItem = null;
-  //     });
-  // };
-  //
-  // const onClickPrev = () => {
-  //   searchIndex = searchIndex > 0 ? searchIndex - 1 : 0;
-  //   scrollToIndex(foundItems[searchIndex]._id);
-  // };
-  // const onClickNext = () => {
-  //   searchIndex = searchIndex < foundItems.length ? searchIndex + 1 : foundItems.length;
-  //   scrollToIndex(foundItems[searchIndex]._id);
-  // };
-  //
-  // $: currentIndex = speeches.findIndex((s) => s._id === selectedItem?._id);
-  // $: prevSpeechItem = speeches.slice(0, currentIndex - 1).reverse().find((s) => s.audio_url);
-  // $: nextSpeechItem = speeches.slice(currentIndex + 1).find((s) => s.audio_url);
-  // $: foundItems = searchTerm ? speeches.filter((s) => s.text.includes(searchTerm)) : speeches;
-  // $: bookmarkItems = speeches.filter((s) => bookmarks.includes(s._id));
-  const query = fetchScenario(play._id);
 
+  onMount(() => {
+    const key = `speeches-for-${scenarioId}`;
+    const b_key = `bookmarks-for-${scenarioId}`;
+
+    const rawData = localStorage.getItem(key);
+    speeches = rawData ? JSON.parse(rawData) : [];
+
+    const bb = localStorage.getItem(b_key);
+    bookmarks = bb ? JSON.parse(bb) : [];
+    client.query(scenarioShowQuery, { id: scenarioId }).toPromise()
+      .then((res) => {
+        let { speeches: sp, ...p } = res.data.findScenarioByID;
+        play = p;
+        speeches = sp.data;
+        localStorage.setItem(key, JSON.stringify(sp.data));
+      });
+  });
+
+  const handleSearchClick = () => {
+    if (showSearch) {
+      searchTerm = '';
+      showSearch = false;
+      searchIndex = 0;
+    } else {
+      showSearch = true;
+    }
+  };
+  const handleUpdate = (data) => {
+    if (data.audio) {
+      let formData = new FormData();
+      formData.append('speech[audio]', data.audio);
+      http.put(`/speeches/${data._id}.json`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data', }
+      }).then(({ data }) => {
+        speeches = speeches.map((s) => s._id === data._id ? data : s);
+        selectedItem = data;
+      });
+    } else {
+      http.put(`/speeches/${data._id}.json`, data)
+        .then(({ data }) => {
+          speeches = speeches.map((s) => s._id === data._id ? data : s);
+          selectedItem = data;
+        });
+    }
+  };
+  const handleClick = (item) => {
+    selectedItem = selectedItem === item ? null : item;
+  };
+
+  const handleBookmarkChange = () => {
+    bookmarks = bookmarks.includes(editedItem._id)
+      ? bookmarks.filter((b) => editedItem._id !== b)
+      : [...bookmarks, editedItem._id].sort();
+
+    const b_key = `bookmarks-for-${play._id}`;
+    localStorage.setItem(b_key, JSON.stringify(bookmarks));
+  };
+  const toggleRole = (role) => {
+    if (selectedRole === role) {
+      selectedRole = null;
+    } else {
+      selectedRole = role;
+      const item = speeches.find((r) => r.text.startsWith(role));
+      scrollToIndex(item._id);
+    }
+  };
+  const scrollToIndex = (id) => {
+    const getMeTo = document.getElementById(id);
+    getMeTo.scrollIntoView({ behavior: 'smooth' });
+  };
+  const goto = (item) => {
+    scrollToIndex(item._id);
+    selectedItem = item;
+  };
+  const close = () => editedItem = null;
+  const save = () => {
+    handleUpdate({ id: editedItem._id, text: editedItem.text });
+    editedItem = null;
+  };
+
+  const handleDelete = (item) => {
+    http.delete(`/speeches/${item._id}.json`)
+      .then(() => {
+        speeches = speeches.filter((i) => i._id !== item._id);
+        editedItem = null;
+      });
+  };
+
+  const onClickPrev = () => {
+    searchIndex = searchIndex > 0 ? searchIndex - 1 : 0;
+    scrollToIndex(foundItems[searchIndex]._id);
+  };
+  const onClickNext = () => {
+    searchIndex = searchIndex < foundItems.length ? searchIndex + 1 : foundItems.length;
+    scrollToIndex(foundItems[searchIndex]._id);
+  };
+
+  $: currentIndex = speeches.findIndex((s) => s._id === selectedItem?._id);
+  $: prevSpeechItem = speeches.slice(0, currentIndex - 1).reverse().find((s) => s.audio_url);
+  $: nextSpeechItem = speeches.slice(currentIndex + 1).find((s) => s.audio_url);
+  $: foundItems = searchTerm ? speeches.filter((s) => s.text.includes(searchTerm)) : speeches;
+  $: bookmarkItems = speeches.filter((s) => bookmarks.includes(s._id));
 </script>
 
 <svelte:head>
   <title>{play.title}</title>
   <meta name="description" content={play.description} />
 </svelte:head>
-
-{#if $query.fetching}
-  <Loader />
-{:else if $query.error}
-  Oh no! {$query.error.message}
-{:else if !$query.data}
-  No data
-{:else}
-  <div class="flex flex-col mb-3 xl:w-1/3 md:mx-auto md:w-2/3 xs:w-full p-3">
-    {JSON.stringify($query.data)}
+<header>
+  <div class="container d-flex align-items-center justify-content-between">
+    <a href="/">← Назад</a>
+    <h2 class="cursor-pointer" on:click={() => scrollToIndex('roles')}>{play.title}</h2>
+    <div class="d-flex">
+      <Icon name="search" className="mr-3" onClick={handleSearchClick} />
+      <Icon name="users" onClick={() => showRoleSelect = !showRoleSelect} />
+      {#if bookmarks.length > 0}
+        <div class="burger ml-3" on:click={() => showBookmarks = true}>
+          <svg viewBox="0 0 100 60" width="24" height="24">
+            <rect width="100" height="6"></rect>
+            <rect y="30" width="100" height="6"></rect>
+            <rect y="60" width="100" height="6"></rect>
+          </svg>
+        </div>
+      {/if}
+    </div>
   </div>
+  {#if showRoleSelect}
+    <div class="roles container" id="roles">
+      {#each play.roles as role (role)}
+        <div class="role" class:active={role === selectedRole} on:click={() => toggleRole(role)}>{role}</div>
+      {/each}
+    </div>
+  {/if}
+</header>
 
+<div class="play">
+  <section class="container" class:filtered={selectedRole}>
+    {#if speeches.length > 0}
+      {#each speeches as item, i (item)}
+        <div
+          id={item._id}
+          class="speech-item"
+          class:selected={selectedItem === item}
+          class:matched={item.text.startsWith(selectedRole)}
+          class:withAudio={item.audio_url}
+          on:click={() => handleClick(item)}
+          on:long={() => editedItem = item}
+          use:longpress
+        >
+          <div class="item-actions">
+            {#if play.active}
+              <Icon name="edit" onClick={() => editedItem = item} />
+            {/if}
+          </div>
+          {@html item.text.replace(searchTerm, `<strong>${searchTerm}</strong>`)}
+        </div>
+      {/each}
+    {:else}
+      <Loader />
+    {/if}
+  </section>
+</div>
+
+{#if showSearch}
+  {#key searchTerm}
+    <footer>
+      <div class="container">
+        <div class="d-flex align-items-center justify-content-between p-3">
+          <div class="d-flex align-items-center">
+            {#if foundItems.length > 0}
+              <Icon name="prev" className="m mr-3" onClick={onClickPrev} title="Предыдущая запись" />
+              <Icon name="next" className="m" onClick={onClickNext} title="Следующая запись" />
+            {/if}
+            {#if searchTerm}
+              {searchIndex + 1} / {foundItems.length}
+            {/if}
+          </div>
+          <div class="d-flex align-items-center">
+            <input type="text" bind:value class="mr-3">
+            <Icon name="search" onClick={() => searchTerm = value} />
+          </div>
+        </div>
+      </div>
+    </footer>
+  {/key}
 {/if}
 
-<!--<header>-->
-<!--  <div class="container d-flex align-items-center justify-content-between">-->
-<!--    <a href="/">← Назад</a>-->
-<!--    <h2 class="cursor-pointer" on:click={() => scrollToIndex('roles')}>{play.title}</h2>-->
-<!--    <div class="d-flex">-->
-<!--      <Icon name="search" className="mr-3" onClick={handleSearchClick} />-->
-<!--      <Icon name="users" onClick={() => showRoleSelect = !showRoleSelect} />-->
-<!--      {#if bookmarks.length > 0}-->
-<!--        <div class="burger ml-3" on:click={() => showBookmarks = true}>-->
-<!--          <svg viewBox="0 0 100 60" width="24" height="24">-->
-<!--            <rect width="100" height="6"></rect>-->
-<!--            <rect y="30" width="100" height="6"></rect>-->
-<!--            <rect y="60" width="100" height="6"></rect>-->
-<!--          </svg>-->
-<!--        </div>-->
-<!--      {/if}-->
-<!--    </div>-->
-<!--  </div>-->
-<!--  {#if showRoleSelect}-->
-<!--    <div class="roles container" id="roles">-->
-<!--      {#each play.roles as role (role)}-->
-<!--        <div class="role" class:active={role === selectedRole} on:click={() => toggleRole(role)}>{role}</div>-->
-<!--      {/each}-->
-<!--    </div>-->
-<!--  {/if}-->
-<!--</header>-->
+{#if selectedItem}
+  {#key selectedItem}
+    <footer>
+      <div class="container">
+        <MediaControl
+          audioUrl={selectedItem.audio_url}
+          onSave={(audio) => handleUpdate({ id: selectedItem._id, audio })}
+          onClickPrev={prevSpeechItem && (() => goto(prevSpeechItem))}
+          onClickNext={nextSpeechItem && (() => goto(nextSpeechItem))}
+          readonly={!play.active}
+        />
+      </div>
+    </footer>
+  {/key}
+{/if}
 
-<!--<div class="play">-->
-<!--  <section class="container" class:filtered={selectedRole}>-->
-<!--    {#if speeches.length > 0}-->
-<!--      {#each speeches as item, i (item)}-->
-<!--        <div-->
-<!--          id={item._id}-->
-<!--          class="speech-item"-->
-<!--          class:selected={selectedItem === item}-->
-<!--          class:matched={item.text.startsWith(selectedRole)}-->
-<!--          class:withAudio={item.audio_url}-->
-<!--          on:click={() => handleClick(item)}-->
-<!--          on:long={() => editedItem = item}-->
-<!--          use:longpress-->
-<!--        >-->
-<!--          <div class="item-actions">-->
-<!--            {#if play.active}-->
-<!--              <Icon name="edit" onClick={() => editedItem = item} />-->
-<!--            {/if}-->
-<!--          </div>-->
-<!--          {@html item.text.replace(searchTerm, `<strong>${searchTerm}</strong>`)}-->
-<!--        </div>-->
-<!--      {/each}-->
-<!--    {:else}-->
-<!--      <Loader />-->
-<!--    {/if}-->
-<!--  </section>-->
-<!--</div>-->
+{#if play.active && editedItem}
+  <Modal on:close={close}>
+    <span slot="header">Редактирование текста</span>
+    <p contenteditable="true" bind:innerHTML={editedItem.text}>
+    </p>
+    <div class="mb-3">
+      <label>
+        <input type="checkbox" on:change={handleBookmarkChange} checked={bookmarks.includes(editedItem._id)}>
+        <span class="ml-3">В закладки</span>
+      </label>
+    </div>
+    <div class="d-flex justify-content-between" slot="footer">
+      <div>
+        <button class="btn-secondary" on:click={close}>
+          Отменить
+        </button>
+        <button class="btn-danger" on:click={() => handleDelete(editedItem)}>
+          Удалить
+        </button>
+      </div>
 
-<!--{#if showSearch}-->
-<!--  {#key searchTerm}-->
-<!--    <footer>-->
-<!--      <div class="container">-->
-<!--        <div class="d-flex align-items-center justify-content-between p-3">-->
-<!--          <div class="d-flex align-items-center">-->
-<!--            {#if foundItems.length > 0}-->
-<!--              <Icon name="prev" className="m mr-3" onClick={onClickPrev} title="Предыдущая запись" />-->
-<!--              <Icon name="next" className="m" onClick={onClickNext} title="Следующая запись" />-->
-<!--            {/if}-->
-<!--            {#if searchTerm}-->
-<!--              {searchIndex + 1} / {foundItems.length}-->
-<!--            {/if}-->
-<!--          </div>-->
-<!--          <div class="d-flex align-items-center">-->
-<!--            <input type="text" bind:value class="mr-3">-->
-<!--            <Icon name="search" onClick={() => searchTerm = value} />-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </footer>-->
-<!--  {/key}-->
-<!--{/if}-->
-
-<!--{#if selectedItem}-->
-<!--  {#key selectedItem}-->
-<!--    <footer>-->
-<!--      <div class="container">-->
-<!--        <MediaControl-->
-<!--          audioUrl={selectedItem.audio_url}-->
-<!--          onSave={(audio) => handleUpdate({ id: selectedItem._id, audio })}-->
-<!--          onClickPrev={prevSpeechItem && (() => goto(prevSpeechItem))}-->
-<!--          onClickNext={nextSpeechItem && (() => goto(nextSpeechItem))}-->
-<!--          readonly={!play.active}-->
-<!--        />-->
-<!--      </div>-->
-<!--    </footer>-->
-<!--  {/key}-->
-<!--{/if}-->
-
-<!--{#if play.active && editedItem}-->
-<!--  <Modal on:close={close}>-->
-<!--    <span slot="header">Редактирование текста</span>-->
-<!--    <p contenteditable="true" bind:innerHTML={editedItem.text}>-->
-<!--    </p>-->
-<!--    <div class="mb-3">-->
-<!--      <label>-->
-<!--        <input type="checkbox" on:change={handleBookmarkChange} checked={bookmarks.includes(editedItem._id)}>-->
-<!--        <span class="ml-3">В закладки</span>-->
-<!--      </label>-->
-<!--    </div>-->
-<!--    <div class="d-flex justify-content-between" slot="footer">-->
-<!--      <div>-->
-<!--        <button class="btn-secondary" on:click={close}>-->
-<!--          Отменить-->
-<!--        </button>-->
-<!--        <button class="btn-danger" on:click={() => handleDelete(editedItem)}>-->
-<!--          Удалить-->
-<!--        </button>-->
-<!--      </div>-->
-
-<!--      <button class="btn-primary" on:click={save}>-->
-<!--        Сохранить-->
-<!--      </button>-->
-<!--    </div>-->
-<!--  </Modal>-->
-<!--{/if}-->
-<!--{#if showBookmarks}-->
-<!--  <div class="bookmarks">-->
-<!--    <div class="d-flex justify-content-between p-3">-->
-<!--      <h3>Закладки</h3>-->
-<!--      <Icon onClick={() => showBookmarks =false} name="cross" />-->
-<!--    </div>-->
-<!--    {#each bookmarkItems as item, i (item)}-->
-<!--      <div class="p-3 bookmark" class:active={item === selectedItem} on:click={() => {-->
-<!--        showBookmarks = false-->
-<!--        goto(item)-->
-<!--      }}>{truncate(item.text)}</div>-->
-<!--    {/each}-->
-<!--  </div>-->
-<!--{/if}-->
+      <button class="btn-primary" on:click={save}>
+        Сохранить
+      </button>
+    </div>
+  </Modal>
+{/if}
+{#if showBookmarks}
+  <div class="bookmarks">
+    <div class="d-flex justify-content-between p-3">
+      <h3>Закладки</h3>
+      <Icon onClick={() => showBookmarks =false} name="cross" />
+    </div>
+    {#each bookmarkItems as item, i (item)}
+      <div class="p-3 bookmark" class:active={item === selectedItem} on:click={() => {
+        showBookmarks = false
+        goto(item)
+      }}>{truncate(item.text)}</div>
+    {/each}
+  </div>
+{/if}
 
 <style>
   .play {
