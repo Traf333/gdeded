@@ -1,15 +1,15 @@
 <script lang="ts">
-  import type { IScenario, ISpeech } from '$lib/types';
-  import { longpress } from '$lib/longpress.js';
+  import type { IScenario, ISpeech } from '../lib/types';
+  import { longpress } from '../lib/longpress.js';
   import { onMount } from 'svelte';
-  import { client } from '../../lib/faunadb.js';
-  import http from '$lib/http';
-  import { truncate } from '$lib/text';
-  import MediaControl from '../../components/MediaControl.svelte';
-  import Loader from '../../components/Loader.svelte';
-  import Icon from '../../components/icon/Icon.svelte';
-  import { scenarioShowQuery } from '../../api/scenario';
-  import { destroySpeech, updateSpeech } from '../../api/speech';
+  import { client } from '../lib/faunadb.js';
+  import http from '../lib/http';
+  import { truncate } from '../lib/text';
+  import MediaControl from '../components/MediaControl.svelte';
+  import Loader from '../components/Loader.svelte';
+  import Icon from '../components/icon/Icon.svelte';
+  import { scenarioShowQuery } from '../api/scenario';
+  import { destroySpeech, updateSpeech } from '../api/speech';
   import { Button, Checkbox, Modal } from 'flowbite-svelte';
 
   export let play: IScenario;
@@ -36,7 +36,7 @@
 
 
   onMount(() => {
-    scenarioId = window.location.pathname.split('/').at(-1);
+    scenarioId = window.location.search.substring(1);
 
     p_key = `play-${scenarioId}`;
     s_key = `speeches-for-${scenarioId}`;
