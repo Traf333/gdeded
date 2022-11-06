@@ -1,7 +1,3 @@
-<script context="module" lang="ts">
-  export const prerender = true;
-</script>
-
 <script lang="ts">
   import { fetchScenarios, createScenario, updateScenario, destroyScenario } from '../api/scenario';
   import type { IScenario } from '$lib/types';
@@ -46,7 +42,7 @@
             <Dropdown class="w-36" triggeredBy=".dots-menu{play._id}">
               <DropdownItem on:click={() => selectedItem = play}>Редактировать</DropdownItem>
               <!--              <DropdownItem>Export data</DropdownItem>-->
-                            <DropdownItem on:click={() => destroyScenario(play._id)}>Удалить</DropdownItem>
+              <DropdownItem on:click={() => destroyScenario(play._id)}>Удалить</DropdownItem>
             </Dropdown>
           </div>
           <p class="font-normal text-gray-700 dark:text-gray-400 leading-tight">
@@ -65,11 +61,9 @@
 </section>
 
 <Modal bind:open={selectedItem} title={selectedItem?._id ? 'Редактировать спектакль' : 'Создать спектакль'}>
-  {#key selectedItem._id}
-    <ScenarioForm scenario={selectedItem}
-                  onSubmit={(scenario) => selectedItem?._id ?  updateScenario(selectedItem._id, scenario) : createScenario(scenario) }
-                  onCancel={() => selectedItem = null} />
-  {/key}
+  <ScenarioForm scenario={selectedItem}
+                onSubmit={(scenario) => selectedItem?._id ?  updateScenario(selectedItem._id, scenario) : createScenario(scenario) }
+                onCancel={() => selectedItem = null} />
 </Modal>
 
 <style>

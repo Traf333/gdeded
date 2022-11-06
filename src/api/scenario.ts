@@ -1,10 +1,10 @@
 import { gql, mutationStore, queryStore } from '@urql/svelte';
-import client from '$lib/database/client.js';
+import faunadb from '../lib/faunadb.js';
 import type { IScenario } from '../lib/types';
 
 export const fetchScenarios = () => (
   queryStore({
-    client: client,
+    client: faunadb,
     query: gql`
         query {
             allScenarios {
@@ -46,7 +46,7 @@ export const scenarioShowQuery = gql`
 `;
 export const fetchScenario = (id: string) => (
   queryStore({
-    client: client,
+    client: faunadb,
     query: scenarioShowQuery,
     variables: { id }
   })
@@ -54,7 +54,7 @@ export const fetchScenario = (id: string) => (
 
 export const createScenario = (data: IScenario) => (
   mutationStore({
-    client: client,
+    client: faunadb,
     query: gql`
         mutation createScenario($data: ScenarioInput!){
             createScenario(data: $data) {
@@ -71,7 +71,7 @@ export const createScenario = (data: IScenario) => (
 
 export const updateScenario = (id: string, data: IScenario) => (
   mutationStore({
-    client: client,
+    client: faunadb,
     query: gql`
         mutation updateScenario($id: ID!, $data: ScenarioInput!){
             updateScenario(id: $id, data: $data) {
@@ -88,7 +88,7 @@ export const updateScenario = (id: string, data: IScenario) => (
 
 export const destroyScenario = (id: IScenario) => (
   mutationStore({
-    client: client,
+    client: faunadb,
     query: gql`
         mutation deleteScenario($id: ID!){
             deleteScenario(id: $id) {

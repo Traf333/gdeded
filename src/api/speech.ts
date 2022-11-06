@@ -1,26 +1,10 @@
-import { gql, mutationStore, queryStore } from '@urql/svelte';
-import client from '$lib/database/client.js';
+import { gql, mutationStore } from '@urql/svelte';
+import faunadb from '../lib/faunadb.js';
 import type { ISpeech } from '../lib/types';
-
-export const fetchSpeeches = () => (
-  queryStore({
-    client: client,
-    query: gql`
-        query {
-            findSpeechByID() {
-                data {
-                    text
-                    }
-                }
-            }
-        }
-    `,
-  })
-);
 
 export const createSpeech = (data: ISpeech) => (
   mutationStore({
-    client: client,
+    client: faunadb,
     query: gql`
         mutation createSpeech($data: SpeechInput!){
             createSpeech(data: $data) {
@@ -35,7 +19,7 @@ export const createSpeech = (data: ISpeech) => (
 
 export const updateSpeech = (id: string, data: ISpeech) => (
   mutationStore({
-    client: client,
+    client: faunadb,
     query: gql`
         mutation updateSpeech($id: ID!, $data: SpeechInput!){
             updateSpeech(id: $id, data: $data) {
@@ -50,7 +34,7 @@ export const updateSpeech = (id: string, data: ISpeech) => (
 
 export const destroySpeech = (id: ISpeech) => (
   mutationStore({
-    client: client,
+    client: faunadb,
     query: gql`
         mutation deleteSpeech($id: ID!){
             deleteSpeech(id: $id) {
