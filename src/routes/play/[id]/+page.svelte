@@ -8,6 +8,7 @@
   import Icon from '../../../components/icon/Icon.svelte';
   import { destroySpeech, updateSpeech } from '../../../api/speech';
   import { Button, Checkbox, Modal } from 'flowbite-svelte';
+  import { onMount } from 'svelte';
 
   export let data;
   let play: IScenario = data.play;
@@ -22,6 +23,10 @@
   let value = '';
   let searchIndex = 0;
   let bookmarks = [];
+
+  onMount(() => {
+    bookmarks = JSON.parse(localStorage.getItem(`bookmarks-${play._id}`) || '[]');
+  });
 
   const handleSearchClick = () => {
     if (showSearch) {
@@ -206,16 +211,14 @@
 
 <Modal open={play.active && editedItem} title="Редактирование текста">
   <p contenteditable="true" bind:innerHTML={editedItem.text}></p>
-  <div class="mb-3">
+  <div class="mb-3 d-flex justify-content-between">
     <Checkbox checked={bookmarks.includes(editedItem._id)} on:click={handleBookmarkChange}>
       В закладки
     </Checkbox>
+    <Icon name="trash" on:click={() => handleDelete(editedItem)} />
   </div>
   <div class="flex items-center justify-between">
-    <div>
-      <Button color="alternative" on:click={close}>Отменить</Button>
-      <Button color="red" outline on:click={() => handleDelete(editedItem)}> Удалить</Button>
-    </div>
+    <Button color="alternative" on:click={close}>Отменить</Button>
     <Button on:click={save}>Сохранить</Button>
   </div>
 </Modal>
