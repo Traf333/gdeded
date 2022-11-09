@@ -31,7 +31,7 @@
   <div class="flex flex-col mb-3 xl:w-1/3 md:mx-auto md:w-2/3 xs:w-full p-3">
     {#each scenarios as play (play)}
       <Card class="mb-3">
-        <div class="flex justify-between">
+        <div class="flex justify-between w-full">
           <a href="/play/{play._id}" class="mb-2 text-l font-semibold tracking-tight text-gray-900 dark:text-white">
             {play.title}
           </a>
