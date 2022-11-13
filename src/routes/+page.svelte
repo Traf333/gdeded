@@ -3,6 +3,8 @@
   import type { IScenario } from '$lib/types';
   import ScenarioForm from '../components/ScenarioForm.svelte';
   import { Card, ToolbarButton, Dropdown, DropdownItem, Button, Modal } from 'flowbite-svelte';
+  import { onMount } from 'svelte';
+  import s3, { getList } from '$lib/s3';
 
   export let data;
 
@@ -18,6 +20,10 @@
       scenarios = [...scenarios, rest.data.createScenario];
     }
   };
+  onMount(() => {
+    window.gg = getList;
+    window.s3 = s3
+  });
 </script>
 
 <svelte:head>

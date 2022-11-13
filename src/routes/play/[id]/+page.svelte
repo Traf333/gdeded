@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { IScenario, ISpeech } from '../../../lib/types';
-  import { longpress } from '../../../lib/longpress.js';
-  import http from '../../../lib/http';
-  import { truncate } from '../../../lib/text';
+  import type { IScenario, ISpeech } from '$lib/types';
+  import { longpress } from '$lib/longpress.js';
+  import { truncate } from '$lib/text';
+  import { uploadFile, getFileUrl } from '$lib/s3';
   import MediaControl from '../../../components/MediaControl.svelte';
   import Loader from '../../../components/Loader.svelte';
   import Icon from '../../../components/icon/Icon.svelte';
@@ -37,21 +37,17 @@
       showSearch = true;
     }
   };
-  const handleUpdate = (id, data) => {
-    if (data.audio) {
-      let formData = new FormData();
-      formData.append('speech[audio]', data.audio);
-      http.put(`/speeches/${id}.json`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data', }
-      }).then(({ data }) => {
-        speeches = speeches.map((s) => s._id === id ? data : s);
-        selectedItem = data;
-      });
-    } else {
-      updateSpeech(id, data);
-      speeches = speeches.map((s) => s._id === id ? data : s);
-      selectedItem = data;
-    }
+  const handleUpdate = async (id, data) => {
+    // if (data.audio) {
+    //   const res = await uploadFile(data.audio, selectedItem._id)
+    //   console.log("-> res", res);
+    //   delete data.audio
+    //   const ff = await getFileUrl(selectedItem._id)
+    //   console.log("-> ff", ff);
+    // }
+    updateSpeech(id, data);
+    speeches = speeches.map((s) => s._id === id ? data : s);
+    selectedItem = data;
   };
   const handleClick = (item) => {
     selectedItem = selectedItem === item ? null : item;
@@ -193,7 +189,7 @@
   {/key}
 {/if}
 
-{#if selectedItem}
+{#if selectedItem && false}
   {#key selectedItem}
     <footer>
       <div class="container">
