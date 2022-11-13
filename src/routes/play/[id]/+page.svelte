@@ -307,7 +307,8 @@
   }
 
   .item-actions > :global(div) {
-    width: 16px;
+    width: 20px;
+    height: 16px;
     margin: 4px;
   }
 

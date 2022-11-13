@@ -38,7 +38,7 @@
     {#each scenarios as play (play)}
       <Card class="mb-3">
         <div class="flex justify-between w-full">
-          <a href="/play/{play._id}" class="mb-2 text-l font-semibold tracking-tight text-gray-900 dark:text-white">
+          <a href="/play/{play._id}" class="mb-2 flex-1 text-l font-semibold tracking-tight text-gray-900 dark:text-white">
             {play.title}
           </a>
           <ToolbarButton class="dots-menu{play._id} text-gray-900 bg-white dark:text-white dark:bg-gray-800">
