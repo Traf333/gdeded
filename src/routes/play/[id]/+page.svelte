@@ -221,7 +221,7 @@
 		<Checkbox checked={bookmarks.includes(editedItem._id)} on:click={handleBookmarkChange}>
 			В закладки
 		</Checkbox>
-		<Icon name="trash" on:click={() => handleDelete(editedItem)} />
+		<Icon name="trash" onClick={() => handleDelete(editedItem)} />
 	</div>
 	<div class="flex items-center justify-between">
 		<Button color="alternative" on:click={close}>Отменить</Button>
